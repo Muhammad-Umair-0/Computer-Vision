@@ -13,17 +13,14 @@ box_count = 0
 for con in contours:
     area = cv2.contourArea(con)
     print(area)
-    if area > 200:  # Optional: filter small contours
+    if area > 200:  s
         x1, y1, w, h = cv2.boundingRect(con)
         cv2.rectangle(img, (x1, y1), (x1 + w, y1 + h), (0, 255, 0), 2)  # Green color
-        cv2.rectangle(gray, (x1, y1), (x1 + w, y1 + h), (0, 255, 0), 2) 
         box_count += 1
 
 print("The total birds are", box_count)
 
 cv2.imshow('img', img)
-cv2.imshow('gray',gray)
 cv2.imshow('thresh', thresh)
 cv2.waitKey(0)
 cv2.destroyAllWindows()
-
