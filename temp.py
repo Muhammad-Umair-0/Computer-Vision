@@ -1,26 +1,36 @@
-import os
 import cv2
 
-img = cv2.imread(os.path.join('.', 'birds.png'))
-gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-ret, thresh = cv2.threshold(gray, 127, 255, cv2.THRESH_BINARY_INV)
+def get_hsv_range(color_name):
+    """
+    Returns lower and upper HSV limits for a given color name.
+    Supported: 'red', 'green', 'blue', 'yellow'
+    """
+    color_ranges = {
+        'red':    [(0, 100, 100), (10, 255, 255)],    # Lower red range
+        'green':  [(40, 40, 40), (70, 255, 255)],
+        'blue':   [(100, 150, 0), (140, 255, 255)],
+        'yellow': [(20, 100, 100), (30, 255, 255)]
+    }
+    return color_ranges.get(color_name.lower())
 
-# Use thresholded image for contour detection
-contours, hierarchy = cv2.findContours(thresh, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+color = 'red'  # Change to 'green', 'blue', or 'yellow' as needed
+hsv_range = get_hsv_range(color)
+if hsv_range:
+    lower_limit, upper_limit = hsv_range
+else:
+    raise ValueError("Color not supported")
 
-# Remove unused sum calculation
-box_count = 0
-for con in contours:
-    area = cv2.contourArea(con)
-    print(area)
-    if area > 200:  s
-        x1, y1, w, h = cv2.boundingRect(con)
-        cv2.rectangle(img, (x1, y1), (x1 + w, y1 + h), (0, 255, 0), 2)  # Green color
-        box_count += 1
+cap = cv2.VideoCapture(0)
+while True:
+    ret, frame = cap.read()
+    if not ret:
+        break
+    hsvImage = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(hsvImage, lower_limit, upper_limit)
+    cv2.imshow("frame", mask)
+    cv2.imshow("original", frame)
+    if cv2.waitKey(1) & 0xFF == ord('q'):
+        break       
 
-print("The total birds are", box_count)
-
-cv2.imshow('img', img)
-cv2.imshow('thresh', thresh)
-cv2.waitKey(0)
+cap.release()
 cv2.destroyAllWindows()
